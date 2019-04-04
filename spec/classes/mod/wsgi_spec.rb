@@ -7,7 +7,6 @@ describe 'apache::mod::wsgi', type: :class do
       {
         osfamily: 'Debian',
         operatingsystemrelease: '8',
-        concat_basedir: '/dne',
         lsbdistcodename: 'jessie',
         operatingsystem: 'Debian',
         id: 'root',
@@ -30,7 +29,6 @@ describe 'apache::mod::wsgi', type: :class do
       {
         osfamily: 'RedHat',
         operatingsystemrelease: '6',
-        concat_basedir: '/dne',
         operatingsystem: 'RedHat',
         id: 'root',
         kernel: 'Linux',
@@ -67,6 +65,20 @@ describe 'apache::mod::wsgi', type: :class do
       end
 
       it { is_expected.to contain_file('wsgi.conf').with_content(%r{^  WSGIPythonHome "\/path\/to\/virtenv"$}) }
+    end
+    describe 'with custom WSGIApplicationGroup' do
+      let :params do
+        { wsgi_application_group: '%{GLOBAL}' }
+      end
+
+      it { is_expected.to contain_file('wsgi.conf').with_content(%r{^  WSGIApplicationGroup "%{GLOBAL}"$}) }
+    end
+    describe 'with custom WSGIPythonOptimize' do
+      let :params do
+        { wsgi_python_optimize: 1 }
+      end
+
+      it { is_expected.to contain_file('wsgi.conf').with_content(%r{^  WSGIPythonOptimize 1$}) }
     end
     describe 'with custom package_name and mod_path' do
       let :params do
@@ -121,7 +133,6 @@ describe 'apache::mod::wsgi', type: :class do
       {
         osfamily: 'FreeBSD',
         operatingsystemrelease: '9',
-        concat_basedir: '/dne',
         operatingsystem: 'FreeBSD',
         id: 'root',
         kernel: 'FreeBSD',
@@ -144,7 +155,6 @@ describe 'apache::mod::wsgi', type: :class do
         osfamily: 'Gentoo',
         operatingsystem: 'Gentoo',
         operatingsystemrelease: '3.16.1-gentoo',
-        concat_basedir: '/dne',
         id: 'root',
         kernel: 'Linux',
         path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin',
@@ -170,7 +180,6 @@ describe 'apache::mod::wsgi', type: :class do
           operatingsystem: 'Fedora',
           operatingsystemrelease: '28',
           path: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-          concat_basedir: '/dne',
           is_pe: false,
         }
       end

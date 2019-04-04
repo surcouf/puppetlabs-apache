@@ -170,6 +170,7 @@
 [`mod_alias`]: https://httpd.apache.org/docs/current/mod/mod_alias.html
 [`mod_auth_cas`]: https://github.com/Jasig/mod_auth_cas
 [`mod_auth_kerb`]: http://modauthkerb.sourceforge.net/configure.html
+[`mod_auth_gssapi`]: https://github.com/modauthgssapi/mod_auth_gssapi
 [`mod_authnz_external`]: https://github.com/phokz/mod-auth-external
 [`mod_auth_dbd`]: http://httpd.apache.org/docs/current/mod/mod_authn_dbd.html
 [`mod_auth_mellon`]: https://github.com/UNINETT/mod_auth_mellon
@@ -300,12 +301,15 @@
     - [apacheモジュールへの貢献][貢献]
     - [テストの実施 - クイックガイド][テストの実施]
 
+<a id="module-description"></a>
 ## モジュールの概要
 
 [Apache HTTPサーバ][] (Apache HTTPD、あるいは単にApacheとも呼ばれます)は、広く使用されているWebサーバです。この[Puppetモジュール][]によって、インフラ内でApacheを管理するための設定がシンプルなものになります。幅広いバーチャルホストセットアップを設定および管理し、[Apacheモジュール][]を効率的にインストールして設定することができます。
 
+<a id="setup"></a>
 ## セットアップ
 
+<a id="apache-affects"></a>
 ### apacheモジュールが影響を与えるもの:
 
 - (作成し、書き込みを行う)設定ファイルおよびディレクトリ
@@ -322,6 +326,7 @@ Gentooでは、このモジュールは [`gentoo/puppet-portage`][] Puppetモジ
 >
 >全面的なPuppet管理を一時的に無効にするには、[`apache`][]クラス宣言の[`purge_configs`][]パラメータをfalseに設定します。この手順は、カスタマイズした設定を保存し、リロケーションするための一時的な対策としてのみ推奨されます。
 
+<a id="beginning-with-apache"></a>
 ### Apacheの使用を始める
 
 デフォルトパラメータを用いてPuppetでApacheをインストールするには、[`apache`][]クラスを宣言します。
@@ -350,8 +355,10 @@ class { 'apache':
 
 > **注意**: `default_vhost`を`false`に設定する場合、少なくとも1つの`apache::vhost`リソースを追加する必要があります。追加しなければ、Apacheは起動しません。デフォルトのバーチャルホストを設定するには、`apache`クラスで`default_vhost`を設定するか、[`apache::vhost`][]定義タイプを使用します。[`apache::vhost`][]定義タイプを用いて、追加の固有バーチャルホストを設定することもできます。
 
+<a id="usage"></a>
 ## 使用方法
 
+<a id="configuring-virtual-hosts"></a>
 ### バーチャルホストの設定
 
 デフォルトの[`apache`][]クラスは、ポート80にバーチャルホストを設定します。すべてのインターフェースをリッスンし、[`docroot`][]パラメータのデフォルトディレクトリ`/var/www`をサーブします。
@@ -368,7 +375,7 @@ apache::vhost { 'vhost.example.com':
 
 すべてのバーチャルホストパラメータのリストについては、[`apache::vhost`][]定義タイプのリファレンスを参照してください。
 
-> **注意**: Apacheはバーチャルホストをアルファベット順に処理します。サーバ管理者は、バーチャルホスト設定ファイル名の先頭に数字を付けることで、 Apacheバーチャルホスト処理の優先順位を設定できます。[`apache::vhost`][]定義タイプは、デフォルトの [`priority`][]である15を適用します。これはPuppetではバーチャルホストのファイル名の先頭に`15-`が付いていると解釈されます。そのため、優先順位が同じサイトが複数ある場合や、`priority`パラメータの値をfalseに設定して優先順位番号を無効にした場合でも、Apacheはバーチャルホストをアルファベット順に処理します。
+> **注意**: Apacheはバーチャルホストをアルファベット順に処理します。サーバ管理者は、バーチャルホスト設定ファイル名の先頭に数字を付けることで、 Apacheバーチャルホスト処理の優先順位を設定できます。[`apache::vhost`][]定義タイプは、デフォルトの [`priority`][]である25を適用します。これはPuppetではバーチャルホストのファイル名の先頭に`25-`が付いていると解釈されます。そのため、優先順位が同じサイトが複数ある場合や、`priority`パラメータの値をfalseに設定して優先順位番号を無効にした場合でも、Apacheはバーチャルホストをアルファベット順に処理します。
 
 `docroot`のユーザおよびグループのオーナーシップを設定するには、[`docroot_owner`][]および[`docroot_group`][]パラメータを使用します。
 
@@ -719,6 +726,7 @@ apache::mod { 'mod_authnz_external': }
 
 この方法でApacheモジュールを定義する際には、いくつかのオプションパラメータを指定できます。詳細については、[定義タイプのリファレンス][`apache::mod`]を参照してください。
 
+<a id="configuring-fastcgi-servers-to-handle-php-files"></a>
 ### PHPファイルを処理するFastCGIサーバの設定
 
 [`apache::fastcgi::server`][]定義タイプを追加すれば、 [FastCGI][]サーバで特定のファイルに関するリクエストを処理することができます。以下の例では、PHPリクエストを処理するFastCGIサーバをポート9000の127.0.0.1 (ローカルホスト)で定義しています。
@@ -744,6 +752,7 @@ apache::vhost { 'www':
 }
 ```
 
+<a id="load-balancing-examples"></a> 
 ### ロードバランシングの例
 
 Apacheは、[`mod_proxy`][] Apacheモジュールを通じて、複数のグループのサーバにわたるロードバランシングをサポートしています。Puppetでは、[`apache::balancer`][]および[`apache::balancermember`][]定義タイプにより、Apacheロードバランシンググループ(バランサクラスタとも呼ばれます)をサポートしています。
@@ -791,6 +800,7 @@ apache::balancer { 'puppet01':
 
 ロードバランシングのスケジューラのアルゴリズム(`lbmethod`)は、[mod_proxy_balancerドキュメント](https://httpd.apache.org/docs/current/mod/mod_proxy_balancer.html)に記載されています。
 
+<a id="reference"></a> 
 ## リファレンス
 
 - [**パブリッククラス**](#public-classes)
@@ -1211,6 +1221,21 @@ Puppetが[Apacheモジュール][]の設定ファイルを置く場所を設定�
 - **Gentoo**: `/etc/apache2/modules.d`
 - **Red Hat**: `/etc/httpd/conf.d`
 
+##### `mod_libs`
+
+デフォルトのモジュールライブラリ名をユーザがオーバーライドすることを許可します。
+
+```puppet
+include apache::params
+class { 'apache':
+  mod_libs => merge($::apache::params::mod_libs, {
+    'wsgi' => 'mod_wsgi_python3.so',
+  })
+}
+```
+
+ハッシュ。デフォルト値: `$apache::params::mod_libs`
+
 ##### `mod_packages`
 
 デフォルトのモジュールパッケージ名をユーザがオーバーライドすることを許可します。
@@ -1332,7 +1357,7 @@ Apacheの[`ServerSignature`][]ディレクティブで、エラードキュメ�
 
 Apacheの[`ServerTokens`][]ディレクティブで、Apacheからブラウザに送信される、Apacheやオペレーティングシステムに関する情報の量を制御します。
 
-デフォルト値: 'OS'。
+デフォルト値: 'Prod'.
 
 ##### `service_enable`
 
@@ -1488,7 +1513,9 @@ Puppetがこのユーザを管理しないようにするには、[`manage_user`
 
 ##### `apache_name`
 
-インストールするApacheパッケージの名前。Red Hatのソフトウェアコレクションのパッケージなど、標準的ではないApacheパッケージを使用している場合は、デフォルト設定をオーバーライドする必要があるかもしれません。
+インストールするApacheパッケージの名前。標準的ではないApacheパッケージを使用している場合は、デフォルト設定をオーバーライドする必要があるかもしれません。
+
+CentOS/RHELソフトウェアコレクション(SCL)では、`apache::version::scl_httpd_version`も使用できます。
 
 デフォルト値: [`apache::params`][]クラスにより設定されたユーザに依存します。これはオペレーティングシステムによって異なります。
 
@@ -1597,6 +1624,7 @@ class { 'apache::mod::alias':
 * `auth_cas`\* ([`apache::mod::auth_cas`][]参照)
 * `auth_mellon`\* ([`apache::mod::auth_mellon`][]参照)
 * `auth_kerb`
+* auth_gssapi
 * `authn_core`
 * `authn_dbd`\* ([`apache::mod::authn_dbd`][]参照)
 * `authn_file`
@@ -1719,18 +1747,18 @@ class {'::apache::mod::disk_cache':
 }
 ```
 
-##### クラス: `apache::mod::diskio`
+##### クラス: `apache::mod::dumpio`
 
-[`mod_diskio`][]をインストールして設定します。
+[`mod_dumpio`][]をインストールして設定します。
 
 ```puppet
 class{'apache':
   default_mods => false,
   log_level    => 'dumpio:trace7',
 }
-class{'apache::mod::diskio':
-  disk_io_input  => 'On',
-  disk_io_output => 'Off',
+class{'apache::mod::dumpio':
+  dump_io_input  => 'On',
+  dump_io_output => 'Off',
 }
 ```
 
@@ -1983,7 +2011,7 @@ class { 'apache::mod::authn_dbd':
 
 ##### クラス: `apache::mod::cluster`
 
-**注意**: `mod_cluster`に関して提供されている公式なパッケージはありません。そのため、Apacheモジュールの外部から使用できるようにする必要があります。バイナリはhttp://mod-cluster.jboss.org/にあります。
+**注意**: `mod_cluster`に関して提供されている公式なパッケージはありません。そのため、Apacheモジュールの外部から使用できるようにする必要があります。バイナリは[こちら](http://mod-cluster.jboss.org/)にあります。
 
 ``` puppet
 class { '::apache::mod::cluster':
@@ -2250,16 +2278,18 @@ apache::vhost { 'example.org':
 
 ``` puppet
 class { '::apache::mod::jk':
-  ip           = '192.168.2.15',
-  workers_file = 'conf/workers.properties',
-  mount_file   = 'conf/uriworkermap.properties',
-  shm_file     = 'run/jk.shm',
-  shm_size     = '50M',
-  $workers_file_content = {
+  ip                   => '192.168.2.15',
+  workers_file         => 'conf/workers.properties',
+  mount_file           => 'conf/uriworkermap.properties',
+  shm_file             => 'run/jk.shm',
+  shm_size             => '50M',
+  workers_file_content => {
     <Content>
   },
 }
 ```
+
+詳細については、[templates/mod/jk/workers.properties.erb](templates/mod/jk/workers.properties.erb)を参照してください。
 
 **`apache::mod::jk`**内のパラメータ:
 
@@ -2293,9 +2323,9 @@ class { '::apache::mod::jk':
 
 各ディレクティブにはフォーマット`worker.<Worker name>.<Property>=<Value>`があります。このマップは複数ハッシュのハッシュとして表され、外側のハッシュはワーカーを指定し、内側の各ハッシュは各ワーカーのプロパティと値を指定します。
 また、2つのグローバルディレクティブ 'worker.list'および'worker.maintain'もあります。  
-例えば、ワーカーファイルは以下のようになります。
+例えば、以下のワーカーファイルは図1のようにパラメータ化します。
 
-```
+``` puppet
 worker.list = status
 worker.list = some_name,other_name
 
@@ -2310,9 +2340,9 @@ worker.other_name.type=ajp12 (why would you?)
 worker.other_name.socket_keepalive=false
 ```
 
-以下のようにパラメータ化する必要があります。　
+**図1:**
 
-```
+``` puppet
 $workers_file_content = {
   worker_lists    => ['status', 'some_name,other_name'],
   worker_maintain => '60',
@@ -2331,10 +2361,12 @@ $workers_file_content = {
 
 **mount\_file\_content**
 
-各ディレクティブにはフォーマット`<URI> = <Worker name>`があります。このマップは複数ハッシュのハッシュとして表され、外側のハッシュはワーカーを指定し、内側の各ハッシュは次の2つのアイテムを含みます: uri_list - ワーカーにマップするURIを用いた配列 - およびコメント - ワーカーに関するコメントを記したオプションの文字列。 
-例えば、マウントファイルは以下のようになります。
+各ディレクティブにはフォーマット`<URI> = <Worker name>`があります。このマップは複数ハッシュのハッシュとして表され、外側のハッシュはワーカーを指定し、内側の各ハッシュは次の2つのアイテムを含みます: 
+* uri_list&mdash - ワーカーにマップするURIを用いた配列
+* comment&mdash - ワーカーに関するコメントを記したオプションの文字列
+例えば、以下のマウントファイルは図2のようにパラメータ化します。
 
-```
+``` puppet
 # Worker 1
 /context_1/ = worker_1
 /context_1/* = worker_1
@@ -2345,9 +2377,9 @@ $workers_file_content = {
 /context_2/* = worker_2
 ```
 
-以下のようにパラメータ化する必要があります。　
+**図2:**
 
-```
+``` puppet
 $mount_file_content = {
   worker_1 => {
     uri_list => ['/context_1/', '/context_1/*'],
@@ -2368,17 +2400,17 @@ $mount_file_content = {
 
 例 (RHEL 6):
 
-```
+``` puppet
 shm_file => 'shm_file'
 # Ends up in
 $shm_path = '/var/log/httpd/shm_file'
 ```
-```
+``` puppet
 shm_file => '/run/shm_file'
 # Ends up in
 $shm_path = '/run/shm_file'
 ```
-```
+``` puppet
 shm_file => '"|rotatelogs /var/log/httpd/mod_jk.log.%Y%m%d 86400 -180"'
 # Ends up in
 $shm_path = '"|rotatelogs /var/log/httpd/mod_jk.log.%Y%m%d 86400 -180"'
@@ -2440,11 +2472,11 @@ $shm_path = '"|rotatelogs /var/log/httpd/mod_jk.log.%Y%m%d 86400 -180"'
 |passenger_load_shell_envvars|未定義|[`PassengerLoadShellEnvvars`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerLoadShellEnvvars)|server-config virutal-host htaccess directory ||
 |passenger_log_file|未定義|[`PassengerLogFile`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerLogFile)|server-config ||
 |passenger_log_level|未定義|[`PassengerLogLevel`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerLogLevel)|server-config ||
-|passenger_lve_min_uid|未定義|[`PassengerLveMinUid`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerLveMinUid)|server-config virutal-host ||
+|passenger_lve_min_uid|未定義|[`PassengerLveMinUid`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerLveMinUid)|server-config virtual-host ||
 |passenger_max_instances|未定義|[`PassengerMaxInstances`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxInstances)|server-config virutal-host htaccess directory ||
 |passenger_max_instances_per_app|未定義|[`PassengerMaxInstancesPerApp`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxInstancesPerApp)|server-config ||
 |passenger_max_pool_size|未定義|[`PassengerMaxPoolSize`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxPoolSize)|server-config ||
-|passenger_max_preloader_idle_time|未定義|[`PassengerMaxPreloaderIdleTime`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxPreloaderIdleTime)|server-config virutal-host ||
+|passenger_max_preloader_idle_time|未定義|[`PassengerMaxPreloaderIdleTime`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxPreloaderIdleTime)|server-config virtual-host ||
 |passenger_max_request_queue_size|未定義|[`PassengerMaxRequestQueueSize`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxRequestQueueSize)|server-config virutal-host htaccess directory ||
 |passenger_max_request_time|未定義|[`PassengerMaxRequestTime`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxRequestTime)|server-config virutal-host htaccess directory ||
 |passenger_max_requests|未定義|[`PassengerMaxRequests`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMaxRequests)|server-config virutal-host htaccess directory ||
@@ -2453,7 +2485,7 @@ $shm_path = '"|rotatelogs /var/log/httpd/mod_jk.log.%Y%m%d 86400 -180"'
 |passenger_min_instances|未定義|[`PassengerMinInstances`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerMinInstances)|server-config virutal-host htaccess directory ||
 |passenger_nodejs|未定義|[`PassengerNodejs`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerNodejs)|server-config virutal-host htaccess directory ||
 |passenger_pool_idle_time|未定義|[`PassengerPoolIdleTime`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerPoolIdleTime)|server-config ||
-|passenger_pre_start|未定義|[`PassengerPreStart`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerPreStart)|server-config virutal-host ||
+|passenger_pre_start|未定義|[`PassengerPreStart`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerPreStart)|server-config virtual-host ||
 |passenger_python|未定義|[`PassengerPython`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerPython)|server-config virutal-host htaccess directory ||
 |passenger_resist_deployment_errors|未定義|[`PassengerResistDeploymentErrors`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerResistDeploymentErrors)|server-config virutal-host htaccess directory ||
 |passenger_resolve_symlinks_in_document_root|未定義|[`PassengerResolveSymlinksInDocumentRoot`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerResolveSymlinksInDocumentRoot)|server-config virutal-host htaccess directory ||
@@ -2465,7 +2497,7 @@ $shm_path = '"|rotatelogs /var/log/httpd/mod_jk.log.%Y%m%d 86400 -180"'
 |passenger_security_update_check_proxy|未定義|[`PassengerSecurityUpdateCheckProxy`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerSecurityUpdateCheckProxy)|server-config ||
 |passenger_show_version_in_header|未定義|[`PassengerShowVersionInHeader`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerShowVersionInHeader)|server-config ||
 |passenger_socket_backlog|未定義|[`PassengerSocketBacklog`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerSocketBacklog)|server-config ||
-|passenger_spawn_method|未定義|[`PassengerSpawnMethod`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerSpawnMethod)|server-config virutal-host ||
+|passenger_spawn_method|未定義|[`PassengerSpawnMethod`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerSpawnMethod)|server-config virtual-host ||
 |passenger_start_timeout|未定義|[`PassengerStartTimeout`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerStartTimeout)|server-config virutal-host htaccess directory ||
 |passenger_startup_file|未定義|[`PassengerStartupFile`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerStartupFile)|server-config virutal-host htaccess directory ||
 |passenger_stat_throttle_rate|未定義|[`PassengerStatThrottleRate`](https://www.phusionpassenger.com/library/config/apache/reference/#PassengerStatThrottleRate)|server-config ||
@@ -2730,7 +2762,7 @@ Apacheモジュール`mod_rewrite`をインストールして有効にします�
 
 このクラスでインストールおよび設定されるのは、Shibboleth SSO認証をコンシュームするWebアプリケーションのApacheコンポーネントのみです。PuppetでShibboleth設定を手動で管理することも、[Shibboleth Puppetモジュール](https://github.com/aethylred/puppet-shibboleth)を使用することもできます。
 
-**注意**: shibbolethモジュールは、Shibbolethのリポジトリにより提供される依存関係パッケージがなければ、RH/CentOSでは使用できません。[http://wiki.aaf.edu.au/tech-info/sp-install-guide]()を参照してください。
+**注意**: shibbolethモジュールは、Shibbolethのリポジトリにより提供される依存関係パッケージがなければ、RH/CentOSでは使用できません。[Shibboleth Service Provider Installation Guide](http://wiki.aaf.edu.au/tech-info/sp-install-guide)を参照してください。
 
 ##### クラス: `apache::mod::ssl`
 
@@ -2796,7 +2828,7 @@ Apacheモジュール`mod_rewrite`をインストールして有効にします�
 
 * `ssl_protocol`
 
-  デフォルト値: ['all', '*SSLv2', '*SSLv3']。
+  デフォルト値: ['all', '-SSLv2', '-SSLv3']
 
 * `ssl_random_seed_bytes`
 
@@ -2837,7 +2869,7 @@ Apacheモジュール`mod_rewrite`をインストールして有効にします�
   > Apacheバージョンが2.4以降の場合のみ使用
 
   - `undef` - `allow_from` および古いディレクティブ構文(`Allow from <List of IPs and/or names>`)を使用し、廃止予定の警告を通知します。
-  - 文字列
+  - String
     - `''`または`'unmanaged'` - authディレクティブなし(アクセス制御は別の方法で実施)
     - `'ip <List of IPs>'` - `/server-status`にアクセスできるIP/範囲
     - `'host <List of names>'` - `/server-status`にアクセスできる名前/ドメイン
@@ -2931,7 +2963,7 @@ ${modsec\_dir}/activated\_rules。
 
   デフォルト値はApacheのログディレクトリ(Redhat: `/var/log/httpd`、Debian: `/var/log/apache2`)。
 
-* `audit_log_releavant_status`: オーディットロギングの目的に関して、考慮すべき応答ステータスコードを設定します。
+* `audit_log_relevant_status`: オーディットロギングの目的に関して、考慮すべき応答ステータスコードを設定します。
 
   デフォルト値: '^(?:5|4(?!04))'。
 
@@ -3052,6 +3084,42 @@ Apacheデーモンを管理します。
 #### クラス: `apache::version`
 
 オペレーティングシステムに基づき、Apacheバージョンの自動検出を試みます。 
+
+##### Red Hat Software Collections (SCL)
+
+CentOS/RHELのSoftware Collectionsでは、新しいApacheおよびPHPに加え、他のパッケージも使用できます。
+
+`scl_httpd_version`が設定されている場合、Apache Httpdは[Software Collections](https://www.softwarecollections.org/en/)からインストールされます。
+
+`scl_httpd_version`が設定されている場合、PHPをインストールする予定がない場合でも`scl_php_version`を設定する必要があります。
+
+リポジトリはこのモジュールではまだ管理されていません。CentOSでは、`centos-release-scl-rh`パッケージをインストールすることでリポジトリを有効にできます。
+
+##### `scl_httpd_version`
+
+Red Hat Software Collections (SCL)を使用してインストールされるhttpdのバージョン。CentOSおよびRHELのコレクションでは、新しいApacheおよびPHPパッケージを使用できます。
+
+`scl_httpd_version`を設定すると、Apache httpdは[Software Collections](https://www.softwarecollections.org/en/)からインストールされます。
+
+`scl_httpd_version`を設定した場合、PHPをインストールする予定がない場合でも`scl_php_version`を設定する必要があります。
+
+SCLリポジトリはこのモジュールではまだ管理されていません。CentOSでは、`centos-release-scl-rh`パッケージをインストールすることでリポジトリを有効にできます。
+
+有効な値: インストールするhttpdのバージョンを指定する文字列。例えば、Apache 2.4の場合は'2.4'を指定します。
+
+デフォルト値: undef。
+
+##### `scl_php_version`
+
+Red Hat Software Collections (SCL)を使用してインストールするhttpdのバージョン。CentOSおよびRHELのコレクションでは、新しいApacheおよびPHPのパッケージを使用できます。
+
+`scl_php_version`を設定すると、PHPは[Software Collections](https://www.softwarecollections.org/en/)からインストールされます。
+
+SCLリポジトリはこのモジュールではまだ管理されていません。CentOSでは、`centos-release-scl-rh`パッケージをインストールすることでリポジトリを有効にできます。
+
+有効な値: インストールするPHPのバージョンを指定する文字列。例えば、PHP 7.1の場合は'7.1'を指定します。
+
+デフォルト値: undef。
 
 ### パブリック定義タイプ　
 
@@ -3461,6 +3529,28 @@ HTTPクエリ文字列でクライアントの提示するチケットをバリ�
 
 デフォルト値: [`apache::mod::auth_cas`][]により設定された値。
 
+
+##### `comment`
+
+設定ファイルのヘッダにコメントを追加します。文字列または文字列の配列として渡します。
+
+デフォルト値: `undef`。
+
+例:　
+
+``` puppet
+comment => "Account number: 123B",
+```
+
+Or:
+
+``` puppet
+comment => [
+  "Customer: X",
+  "Frontend domain: x.example.org",
+]
+```
+
 ##### `custom_fragment`
 
 カスタム設定ディレクティブの文字列を渡し、バーチャルホスト設定の最後に配置します。
@@ -3789,7 +3879,7 @@ Apacheが認証に使用するサービス名を指定します。この名前�
 
 バーチャルホストのログファイルの保存場所を指定します。
 
-デフォルト値: '/var/log/<apache log location>/'。
+デフォルト値: `/var/log/<apache log location>/`。
 
 ##### `$logroot_ensure`
 
@@ -4057,6 +4147,10 @@ sengermaxrequests)を設定します。これは、アプリケーションプ�
 
 [PassengerUser](https://www.phusionpassenger.com/library/config/apache/reference/#passengeruser)を設定します。これは、サンドボックスアプリケーションの実行ユーザです。
 
+##### passenger_group
+
+ [PassengerGroup](https://www.phusionpassenger.com/library/config/apache/reference/#passengergroup)を設定します。これは、サンドボックスアプリケーションの実行グループです。
+
 ##### `passenger_high_performance`
 
 [`PassengerHighPerformance`](https://www.phusionpassenger.com/library/config/apache/reference/#passengerhighperformance)パラメータを設定します。
@@ -4224,7 +4318,7 @@ apache::vhost { 'site.name.fdqn':
   …
   redirectmatch_status => ['404','404'],
   redirectmatch_regexp => ['\.git(/.*|$)/','\.svn(/.*|$)'],
-  redirectmatch_dest => ['http://www.example.com/1','http://www.example.com/2'],
+  redirectmatch_dest => ['http://www.example.com/$1','http://www.example.com/$2'],
 }
 ```
 
@@ -5405,7 +5499,7 @@ apache::vhost { 'sample.example.net':
 
 ブーリアン。
 
-デフォルト値: `true`。
+デフォルト値: `false`。
 
 ##### `ssl_stapling`
 
@@ -5563,18 +5657,10 @@ Apacheが読みこむhtpasswdファイルに適したフォーマットでパス
 
 現在はSHAハッシュを使用しています。これは、このフォーマットは安全ではないとされているものの、ほとんどのプラットフォームでサポートされているもっとも安全なフォーマットであるためです。
 
+<a id="limitations"></a>
 ## 制約事項
 
-### 全般
-
-このモジュールは、以下に関して、[オープンソースPuppet][]および[Puppet Enterprise][]の両方でCIテストが実施されています。
-
-- CentOS 5および6
-- Ubuntu 12.04および14.04
-- Debian 7
-- RHEL 5、6、7
-
-このモジュールでは、FreeBSD、Gentoo、Amazon Linuxなどの、他のディストリビューションおよびオペレーティングシステムで使用できる機能も提供されていますが、そうしたシステムについては公式なテストは実施されておらず、新たに不具合が生じる可能性があります。
+ サポートされているオペレーティングシステムの一覧については、[metadata.json](https://github.com/puppetlabs/puppetlabs-apache/blob/master/metadata.json)を参照してください。
 
 ### FreeBSD
 
@@ -5655,6 +5741,7 @@ apache::vhost { 'test.server':
 ### Ubuntu 16.04
 [`apache::mod::suphp`][]クラスは、リポジトリに適合するパッケージがないため、テストされていません。
 
+<a id="development"></a> 
 ## 開発
 
 ### 貢献

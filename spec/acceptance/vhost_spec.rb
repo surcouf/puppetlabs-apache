@@ -9,8 +9,13 @@ describe 'apache::vhost define' do
         default_ssl_vhost => false,
         service_ensure => stopped,
       }
-      if ($::osfamily == 'Suse') {
+      if ($::osfamily == 'Suse' and $::operatingsystemrelease < '15') {
         exec { '/usr/bin/gensslcert':
+          require => Class['apache'],
+        }
+      } elsif ($::osfamily == 'Suse' and $::operatingsystemrelease >= '15') {
+        # In SLES 15, if not given a name, gensslcert defaults the name to be the hostname
+        exec { '/usr/bin/gensslcert -n default':
           require => Class['apache'],
         }
       }
@@ -178,8 +183,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -222,8 +229,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -278,8 +287,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -335,8 +346,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -407,8 +420,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -468,8 +483,10 @@ describe 'apache::vhost define' do
       end
 
       describe service($service_name) do
-        if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+        if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
           pending 'Should be enabled - Bug 760616 on Debian 8'
+        elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+          pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
         else
           it { is_expected.to be_enabled }
         end
@@ -532,8 +549,10 @@ describe 'apache::vhost define' do
       end
 
       describe service($service_name) do
-        if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+        if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
           pending 'Should be enabled - Bug 760616 on Debian 8'
+        elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+          pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
         else
           it { is_expected.to be_enabled }
         end
@@ -576,8 +595,10 @@ describe 'apache::vhost define' do
       end
 
       describe service($service_name) do
-        if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+        if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
           pending 'Should be enabled - Bug 760616 on Debian 8'
+        elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+          pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
         else
           it { is_expected.to be_enabled }
         end
@@ -656,8 +677,10 @@ describe 'apache::vhost define' do
       end
 
       describe service($service_name) do
-        if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+        if fact('operatingsystem') == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
           pending 'Should be enabled - Bug 760616 on Debian 8'
+        elsif fact('operatingsystem') == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+          pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
         else
           it { is_expected.to be_enabled }
         end
@@ -675,37 +698,41 @@ describe 'apache::vhost define' do
     end
   end
 
-  case fact('lsbdistcodename')
-  when 'precise', 'wheezy'
-    context 'vhost FallbackResource example' do
-      pp = <<-MANIFEST
-        class { 'apache': }
-        apache::vhost { 'fallback.example.net':
-          docroot         => '/var/www/fallback',
-          fallbackresource => '/index.html'
-        }
-        file { '/var/www/fallback/index.html':
-          ensure  => file,
-          content => "Hello World\\n",
-        }
-        host { 'fallback.example.net': ip => '127.0.0.1', }
-      MANIFEST
-      it 'configures a vhost with FallbackResource' do
-        apply_manifest(pp, catch_failures: true)
-      end
-
-      describe service($service_name) do
-        if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
-          pending 'Should be enabled - Bug 760616 on Debian 8'
-        else
-          it { is_expected.to be_enabled }
+  unless host_inventory['facter']['os']['distro'].nil?
+    case host_inventory['facter']['os']['distro']['codename']
+    when 'precise', 'wheezy'
+      context 'vhost FallbackResource example' do
+        pp = <<-MANIFEST
+          class { 'apache': }
+          apache::vhost { 'fallback.example.net':
+            docroot         => '/var/www/fallback',
+            fallbackresource => '/index.html'
+          }
+          file { '/var/www/fallback/index.html':
+            ensure  => file,
+            content => "Hello World\\n",
+          }
+          host { 'fallback.example.net': ip => '127.0.0.1', }
+        MANIFEST
+        it 'configures a vhost with FallbackResource' do
+          apply_manifest(pp, catch_failures: true)
         end
-        it { is_expected.to be_running }
-      end
 
-      it 'answers to fallback.example.net' do
-        shell('/usr/bin/curl fallback.example.net:80/Does/Not/Exist') do |r|
-          expect(r.stdout).to eq("Hello World\n")
+        describe service($service_name) do
+          if host_inventory['facter']['os']['name'] == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
+            pending 'Should be enabled - Bug 760616 on Debian 8'
+          elsif host_inventory['facter']['os']['name'] == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+            pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
+          else
+            it { is_expected.to be_enabled }
+          end
+          it { is_expected.to be_running }
+        end
+
+        it 'answers to fallback.example.net' do
+          shell('/usr/bin/curl fallback.example.net:80/Does/Not/Exist') do |r|
+            expect(r.stdout).to eq("Hello World\n")
+          end
         end
       end
     end
@@ -733,8 +760,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if host_inventory['facter']['os']['name'] == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif host_inventory['facter']['os']['name'] == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -783,8 +812,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if host_inventory['facter']['os']['name'] == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif host_inventory['facter']['os']['name'] == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -832,8 +863,10 @@ describe 'apache::vhost define' do
     end
 
     describe service($service_name) do
-      if fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8'
+      if host_inventory['facter']['os']['name'] == 'Debian' && host_inventory['facter']['os']['release']['major'] == '8'
         pending 'Should be enabled - Bug 760616 on Debian 8'
+      elsif host_inventory['facter']['os']['name'] == 'SLES' && host_inventory['facter']['os']['release']['major'] == '15'
+        pending 'Should be enabled - MODULES-8379 `be_enabled` check does not currently work for apache2 on SLES 15'
       else
         it { is_expected.to be_enabled }
       end
@@ -963,10 +996,9 @@ describe 'apache::vhost define' do
 
     describe file($ports_file) do
       it { is_expected.to be_file }
-      if fact('osfamily') == 'RedHat' && fact('operatingsystemmajrelease') == '7' ||
-         fact('operatingsystem') == 'Ubuntu' && fact('operatingsystemrelease') =~ %r{(14\.04|16\.04)} ||
-         fact('operatingsystem') == 'Debian' && fact('operatingsystemmajrelease') == '8' ||
-         fact('operatingsystem') == 'SLES' && fact('operatingsystemrelease') >= '12'
+      if fact('osfamily') == 'RedHat' && host_inventory['facter']['os']['release']['major'] == '7' ||
+         fact('osfamily') == 'Debian' ||
+         host_inventory['facter']['os']['name'] == 'SLES' && fact('operatingsystemrelease') >= '12'
         it { is_expected.not_to contain 'NameVirtualHost test.server' }
       else
         it { is_expected.to contain 'NameVirtualHost test.server' }
@@ -1205,7 +1237,7 @@ describe 'apache::vhost define' do
         docroot    => '/tmp',
         scriptaliases => [{ alias => '/myscript', path  => '/usr/share/myscript', }],
       }
-  MANIFEST
+    MANIFEST
     it 'applies cleanly' do
       apply_manifest(pp, catch_failures: true)
     end
@@ -1279,7 +1311,7 @@ describe 'apache::vhost define' do
   end
 
   describe 'rack_base_uris' do
-    unless fact('osfamily') == 'RedHat' || fact('operatingsystem') == 'SLES'
+    unless fact('osfamily') == 'RedHat' || host_inventory['facter']['os']['name'] == 'SLES'
       test = -> do
         pp = <<-MANIFEST
           class { 'apache': }
@@ -1469,29 +1501,30 @@ describe 'apache::vhost define' do
   end
 
   describe 'wsgi' do
-    context 'on lucid', if: fact('lsbdistcodename') == 'lucid' do
-      pp = <<-MANIFEST
-        class { 'apache': }
-        class { 'apache::mod::wsgi': }
-        host { 'test.server': ip => '127.0.0.1' }
-        apache::vhost { 'test.server':
-          docroot                     => '/tmp',
-          wsgi_application_group      => '%{GLOBAL}',
-          wsgi_daemon_process         => 'wsgi',
-          wsgi_daemon_process_options => {processes => '2'},
-          wsgi_process_group          => 'nobody',
-          wsgi_script_aliases         => { '/test' => '/test1' },
-          wsgi_script_aliases_match   => { '/test/([^/*])' => '/test1' },
-          wsgi_pass_authorization     => 'On',
-        }
-      MANIFEST
-      it 'import_script applies cleanly' do
-        apply_manifest(pp, catch_failures: true)
+    unless host_inventory['facter']['os']['distro'].nil?
+      context 'on lucid', if: host_inventory['facter']['os']['distro']['codename'] == 'lucid' do
+        pp = <<-MANIFEST
+          class { 'apache': }
+          class { 'apache::mod::wsgi': }
+          host { 'test.server': ip => '127.0.0.1' }
+          apache::vhost { 'test.server':
+            docroot                     => '/tmp',
+            wsgi_application_group      => '%{GLOBAL}',
+            wsgi_daemon_process         => 'wsgi',
+            wsgi_daemon_process_options => {processes => '2'},
+            wsgi_process_group          => 'nobody',
+            wsgi_script_aliases         => { '/test' => '/test1' },
+            wsgi_script_aliases_match   => { '/test/([^/*])' => '/test1' },
+            wsgi_pass_authorization     => 'On',
+          }
+        MANIFEST
+        it 'import_script applies cleanly' do
+          apply_manifest(pp, catch_failures: true)
+        end
       end
-    end
 
-    context 'on everything but lucid', unless: (fact('lsbdistcodename') == 'lucid' || fact('operatingsystem') == 'SLES') do
-      pp = <<-MANIFEST
+      context 'on everything but lucid', unless: (host_inventory['facter']['os']['distro']['codename'] == 'lucid' || host_inventory['facter']['os']['name'] == 'SLES') do
+        pp = <<-MANIFEST
         class { 'apache': }
         class { 'apache::mod::wsgi': }
         host { 'test.server': ip => '127.0.0.1' }
@@ -1509,19 +1542,20 @@ describe 'apache::vhost define' do
           wsgi_chunked_request        => 'On',
         }
       MANIFEST
-      it 'import_script applies cleanly' do
-        apply_manifest(pp, catch_failures: true)
-      end
+        it 'import_script applies cleanly' do
+          apply_manifest(pp, catch_failures: true)
+        end
 
-      describe file("#{$vhost_dir}/25-test.server.conf") do
-        it { is_expected.to be_file }
-        it { is_expected.to contain 'WSGIApplicationGroup %{GLOBAL}' }
-        it { is_expected.to contain 'WSGIDaemonProcess wsgi processes=2' }
-        it { is_expected.to contain 'WSGIImportScript /test1 application-group=%{GLOBAL} process-group=wsgi' }
-        it { is_expected.to contain 'WSGIProcessGroup nobody' }
-        it { is_expected.to contain 'WSGIScriptAlias /test "/test1"' }
-        it { is_expected.to contain 'WSGIPassAuthorization On' }
-        it { is_expected.to contain 'WSGIChunkedRequest On' }
+        describe file("#{$vhost_dir}/25-test.server.conf") do
+          it { is_expected.to be_file }
+          it { is_expected.to contain 'WSGIApplicationGroup %{GLOBAL}' }
+          it { is_expected.to contain 'WSGIDaemonProcess wsgi processes=2' }
+          it { is_expected.to contain 'WSGIImportScript /test1 application-group=%{GLOBAL} process-group=wsgi' }
+          it { is_expected.to contain 'WSGIProcessGroup nobody' }
+          it { is_expected.to contain 'WSGIScriptAlias /test "/test1"' }
+          it { is_expected.to contain 'WSGIPassAuthorization On' }
+          it { is_expected.to contain 'WSGIChunkedRequest On' }
+        end
       end
     end
   end
@@ -1565,8 +1599,8 @@ describe 'apache::vhost define' do
   end
 
   # Limit testing to Debian, since Centos does not have fastcgi package.
-  case fact('osfamily')
-  when 'Debian'
+  # In addition Debian 9/Ubuntu 18.04 no longer support this fastcgi
+  if fact('osfamily') == 'Debian' && !['9', '18.04'].include?(host_inventory['facter']['os']['release']['major'])
     describe 'fastcgi' do
       pp_one = <<-MANIFEST
         $_os = $::operatingsystem
@@ -1715,7 +1749,7 @@ describe 'apache::vhost define' do
     end
   end
 
-  describe 'shibboleth parameters', if: (fact('osfamily') == 'Debian' && fact('operatingsystemmajrelease') != '7') do
+  describe 'shibboleth parameters', if: (fact('osfamily') == 'Debian' && host_inventory['facter']['os']['release']['major'] != '7') do
     # Debian 7 is too old for ShibCompatValidUser
     pp = <<-MANIFEST
       class { 'apache': }
